@@ -27,6 +27,29 @@ class GAILDiscrim(nn.Module):
             return -F.logsigmoid(-self.forward(states, actions))
 
 
+class WGAILDiscrim(nn.Module):
+
+    def __init__(self, state_shape, action_shape, hidden_units=(100, 100),
+                 hidden_activation=nn.Tanh(), output_activation=nn.Tanh()):
+        super().__init__()
+
+        self.net = build_mlp(
+            input_dim=state_shape[0] + action_shape[0],
+            output_dim=1,
+            hidden_units=hidden_units,
+            hidden_activation=hidden_activation,
+            output_activation=output_activation
+        )
+
+    def forward(self, states, actions):
+        return self.net(torch.cat([states, actions], dim=-1))
+
+    def calculate_reward(self, states, actions):
+        # PPO(WGAIL) is to maximize E_{\pi} [D].
+        with torch.no_grad():
+            return self.forward(states, actions)
+
+
 class AIRLDiscrim(nn.Module):
 
     def __init__(self, state_shape, gamma,
