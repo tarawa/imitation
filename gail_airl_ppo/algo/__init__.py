@@ -5,5 +5,6 @@ from .airl import AIRL
 
 ALGOS = {
     'gail': GAIL,
-    'airl': AIRL
+    'airl': AIRL,
+    'wgail': WGAIL
 }
