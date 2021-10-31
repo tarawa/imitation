@@ -84,7 +84,7 @@ class Trainer:
                 state, reward, done, _ = self.env_test.step(action)
                 reward_true[count] = reward
                 episode_return += reward
-                print(f'reward: {reward}, step: {step}')
+                print(f'reward: {reward}, count: {count}')
                 self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_true', reward, count)
                 count += 1
 
