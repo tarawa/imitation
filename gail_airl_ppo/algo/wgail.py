@@ -86,3 +86,27 @@ class WGAIL(PPO):
                 acc_exp = (logits_exp > 0).float().mean().item()
             writer.add_scalar('stats/acc_pi', acc_pi, self.learning_steps)
             writer.add_scalar('stats/acc_exp', acc_exp, self.learning_steps)
+
+    # TODO
+    def calc_gradient_penalty(self, real_data, fake_data):
+        # print "real_data: ", real_data.size(), fake_data.size()
+        alpha = torch.rand(BATCH_SIZE, 1)
+        alpha = alpha.expand(BATCH_SIZE, real_data.nelement()/BATCH_SIZE).contiguous().view(BATCH_SIZE, 3, 32, 32)
+        alpha = alpha.cuda(gpu) if use_cuda else alpha
+
+        interpolates = alpha * real_data + ((1 - alpha) * fake_data)
+
+        if use_cuda:
+            interpolates = interpolates.cuda(gpu)
+        interpolates = autograd.Variable(interpolates, requires_grad=True)
+
+        disc_interpolates = netD(interpolates)
+
+        gradients = autograd.grad(outputs=disc_interpolates, inputs=interpolates,
+                                  grad_outputs=torch.ones(disc_interpolates.size()).cuda(gpu) if use_cuda else torch.ones(
+                                      disc_interpolates.size()),
+                                  create_graph=True, retain_graph=True, only_inputs=True)[0]
+        gradients = gradients.view(gradients.size(0), -1)
+
+        gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * LAMBDA
+        return gradient_penalty
