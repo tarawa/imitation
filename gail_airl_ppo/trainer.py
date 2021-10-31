@@ -75,12 +75,14 @@ class Trainer:
                 action = self.algo.exploit(state)
                 if self.infer_reward:
                     reward_hat = self.algo.disc.calculate_reward(state, action)
+                    reward_pred[count] = reward_hat
+                    self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_pred', reward_hat, count)
+
                 state, reward, done, _ = self.env_test.step(action)
                 reward_true[count] = reward
-                reward_pred[count] = reward_hat
                 episode_return += reward
                 self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_true', reward, count)
-                self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_pred', reward_hat, count)
+                count += 1
 
             mean_return += episode_return / self.num_eval_episodes
 
