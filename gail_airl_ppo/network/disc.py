@@ -11,8 +11,6 @@ class GAILDiscrim(nn.Module):
                  hidden_activation=nn.Tanh()):
         super().__init__()
 
-        print('state_shape: ', state_shape)
-        print('action_shape: ', action_shape)
         self.net = build_mlp(
             input_dim=state_shape[0] + action_shape[0],
             output_dim=1,

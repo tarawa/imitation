@@ -76,8 +76,6 @@ class Trainer:
             while not done:
                 action = self.algo.exploit(state)
                 if self.infer_reward:
-                    print('state: ', state.shape)
-                    print('action: ', action.shape)
                     reward_hat = self.algo.disc.calculate_reward(self.from_numpy(state).unsqueeze(0),
                                                                  self.from_numpy(action).unsqueeze(0),)
                     reward_pred[count] = reward_hat
