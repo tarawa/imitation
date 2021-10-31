@@ -38,7 +38,7 @@ class WGAIL_gp(PPO):
         self.optim_disc = RMSprop(self.disc.parameters(), lr=lr_disc)
         self.batch_size = batch_size
         self.epoch_disc = epoch_disc
-        self.gp_lambda = 1
+        self.gp_lambda = 0.1
 
     def update(self, writer):
         self.learning_steps += 1
