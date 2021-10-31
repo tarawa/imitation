@@ -14,7 +14,7 @@ class WGAIL(PPO):
                  batch_size=64, lr_actor=3e-4, lr_critic=3e-4, lr_disc=5e-5,
                  units_actor=(64, 64), units_critic=(64, 64),
                  units_disc=(100, 100), epoch_ppo=50, epoch_disc=10,
-                 clip_eps=0.2, lambd=0.97, coef_ent=0.0, max_grad_norm=10.0):
+                 clip_eps=0.2, lambd=0.97, coef_ent=0.0, max_grad_norm=10.0, gradient_penalty=True):
         super().__init__(
             state_shape, action_shape, device, seed, gamma, rollout_length,
             mix_buffer, lr_actor, lr_critic, units_actor, units_critic,
@@ -32,11 +32,15 @@ class WGAIL(PPO):
             hidden_activation=nn.Tanh(),
             output_activation=nn.Tanh()
         ).to(device)
+        self.device = device
 
         self.learning_steps_disc = 0
         self.optim_disc = RMSprop(self.disc.parameters(), lr=lr_disc)
         self.batch_size = batch_size
         self.epoch_disc = epoch_disc
+        self.add_gp = gradient_penalty
+        if self.add_gp:
+            self.gp_lambda = 10
 
     def update(self, writer):
         self.learning_steps += 1
@@ -70,7 +74,13 @@ class WGAIL(PPO):
         # Discriminator is to maximize -E_{\pi} [D] + E_{exp} [D].
         loss_pi = logits_pi.mean()
         loss_exp = -logits_exp.mean()
-        loss_disc = loss_pi + loss_exp
+
+        if self.add_gp:
+            gp = self.calc_gradient_penalty(states, states_exp, actions)
+            loss_disc = loss_pi + loss_exp + gp
+        else:
+            loss_disc = loss_pi + loss_exp
+        print(f'gp: {gp}, loss: {loss_disc}')
 
         self.optim_disc.zero_grad()
         loss_disc.backward()
@@ -87,26 +97,17 @@ class WGAIL(PPO):
             writer.add_scalar('stats/acc_pi', acc_pi, self.learning_steps)
             writer.add_scalar('stats/acc_exp', acc_exp, self.learning_steps)
 
-    # TODO
-    def calc_gradient_penalty(self, real_data, fake_data):
-        # print "real_data: ", real_data.size(), fake_data.size()
-        alpha = torch.rand(BATCH_SIZE, 1)
-        alpha = alpha.expand(BATCH_SIZE, real_data.nelement()/BATCH_SIZE).contiguous().view(BATCH_SIZE, 3, 32, 32)
-        alpha = alpha.cuda(gpu) if use_cuda else alpha
+    def calc_gradient_penalty(self, states, states_exp, actions):
+        alpha = torch.rand(self.batch_size, 1, device=self.device)
+        interpolates = alpha * states + ((1 - alpha) * states_exp)
+        interpolates = autograd.Variable(interpolates.detach().clone(), requires_grad=True)
 
-        interpolates = alpha * real_data + ((1 - alpha) * fake_data)
-
-        if use_cuda:
-            interpolates = interpolates.cuda(gpu)
-        interpolates = autograd.Variable(interpolates, requires_grad=True)
-
-        disc_interpolates = netD(interpolates)
+        disc_interpolates = self.disc(interpolates, actions)
 
         gradients = autograd.grad(outputs=disc_interpolates, inputs=interpolates,
-                                  grad_outputs=torch.ones(disc_interpolates.size()).cuda(gpu) if use_cuda else torch.ones(
-                                      disc_interpolates.size()),
+                                  grad_outputs=torch.ones(disc_interpolates.size(), device=self.device),
                                   create_graph=True, retain_graph=True, only_inputs=True)[0]
         gradients = gradients.view(gradients.size(0), -1)
 
-        gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * LAMBDA
+        gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * self.gp_lambda
         return gradient_penalty
