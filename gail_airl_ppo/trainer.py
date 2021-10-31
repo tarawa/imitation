@@ -1,3 +1,4 @@
+import numpy as np
 import os
 from time import time, sleep
 from datetime import timedelta
@@ -78,9 +79,10 @@ class Trainer:
                 reward_true[count] = reward
                 reward_pred[count] = reward_hat
                 episode_return += reward
+                self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_true', reward, count)
+                self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_pred', reward_hat, count)
 
             mean_return += episode_return / self.num_eval_episodes
-            self.writer.add_scalar(f'return/test/episode_{i}', mean_return, step)
 
         self.writer.add_scalar('return/test', mean_return, step)
         print(f'Num steps: {step:<6}   '
