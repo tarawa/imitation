@@ -2,12 +2,13 @@ import os
 from time import time, sleep
 from datetime import timedelta
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm, trange
 
 
 class Trainer:
 
     def __init__(self, env, env_test, algo, log_dir, seed=0, num_steps=10**5,
-                 eval_interval=10**3, num_eval_episodes=5):
+                 eval_interval=10**3, num_eval_episodes=5, infer_reward=False):
         super().__init__()
 
         # Env to collect samples.
@@ -27,6 +28,7 @@ class Trainer:
         self.model_dir = os.path.join(log_dir, 'model')
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
+        self.infer_reward = infer_reward
 
         # Other parameters.
         self.num_steps = num_steps
@@ -41,7 +43,7 @@ class Trainer:
         # Initialize the environment.
         state = self.env.reset()
 
-        for step in range(1, self.num_steps + 1):
+        for step in trange(1, self.num_steps + 1):
             # Pass to the algorithm to update state and episode timestep.
             state, t = self.algo.step(self.env, state, t, step)
 
@@ -52,8 +54,7 @@ class Trainer:
             # Evaluate regularly.
             if step % self.eval_interval == 0:
                 self.evaluate(step)
-                self.algo.save_models(
-                    os.path.join(self.model_dir, f'step{step}'))
+                self.algo.save_models(os.path.join(self.model_dir, f'step{step}'))
 
         # Wait for the logging to be finished.
         sleep(10)
@@ -61,17 +62,25 @@ class Trainer:
     def evaluate(self, step):
         mean_return = 0.0
 
-        for _ in range(self.num_eval_episodes):
+        for i in trange(self.num_eval_episodes):
+            reward_true = np.zeros(self.env_test.get_max_episode_steps())
+            reward_pred = np.zeros(self.env_test.get_max_episode_steps())
             state = self.env_test.reset()
             episode_return = 0.0
             done = False
+            count = 0
 
-            while (not done):
+            while not done:
                 action = self.algo.exploit(state)
+                if self.infer_reward:
+                    reward_hat = self.algo.disc.calculate_reward(state, action)
                 state, reward, done, _ = self.env_test.step(action)
+                reward_true[count] = reward
+                reward_pred[count] = reward_hat
                 episode_return += reward
 
             mean_return += episode_return / self.num_eval_episodes
+            self.writer.add_scalar(f'return/test/episode_{i}', mean_return, step)
 
         self.writer.add_scalar('return/test', mean_return, step)
         print(f'Num steps: {step:<6}   '

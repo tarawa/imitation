@@ -37,7 +37,8 @@ def run(args):
         log_dir=log_dir,
         num_steps=args.num_steps,
         eval_interval=args.eval_interval,
-        seed=args.seed
+        seed=args.seed,
+        infer_reward=True
     )
     trainer.train()
 
