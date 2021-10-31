@@ -19,3 +19,6 @@ class NormalizedEnv(gym.Wrapper):
 
     def step(self, action):
         return self.env.step(action * self.scale)
+
+    def get_max_episode_steps(self):
+        return self._max_episode_steps

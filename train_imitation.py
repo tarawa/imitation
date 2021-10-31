@@ -16,12 +16,13 @@ def run(args):
         path=args.buffer,
         device=torch.device("cuda" if args.cuda else "cpu")
     )
+    device = torch.device("cuda" if args.cuda else "cpu")
 
     algo = ALGOS[args.algo](
         buffer_exp=buffer_exp,
         state_shape=env.observation_space.shape,
         action_shape=env.action_space.shape,
-        device=torch.device("cuda" if args.cuda else "cpu"),
+        device=device,
         seed=args.seed,
         rollout_length=args.rollout_length
     )
@@ -37,7 +38,9 @@ def run(args):
         log_dir=log_dir,
         num_steps=args.num_steps,
         eval_interval=args.eval_interval,
-        seed=args.seed
+        seed=args.seed,
+        infer_reward=True,
+        device=device
     )
     trainer.train()
 
