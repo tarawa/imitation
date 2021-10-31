@@ -66,8 +66,6 @@ class Trainer:
         mean_return = 0.0
 
         for i in trange(self.num_eval_episodes):
-            reward_true = np.zeros(self.env_test.get_max_episode_steps())
-            reward_pred = np.zeros(self.env_test.get_max_episode_steps())
             state = self.env_test.reset()
             episode_return = 0.0
             done = False
@@ -78,11 +76,9 @@ class Trainer:
                 if self.infer_reward:
                     reward_hat = self.algo.disc.calculate_reward(self.from_numpy(state).unsqueeze(0),
                                                                  self.from_numpy(action).unsqueeze(0),)
-                    reward_pred[count] = reward_hat
                     self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_pred', reward_hat, count)
 
                 state, reward, done, _ = self.env_test.step(action)
-                reward_true[count] = reward
                 episode_return += reward
                 print(f'reward: {reward}, count: {count}')
                 self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_true', reward, count)
