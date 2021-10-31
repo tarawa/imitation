@@ -38,7 +38,7 @@ class WGAIL_gp(PPO):
         self.optim_disc = RMSprop(self.disc.parameters(), lr=lr_disc)
         self.batch_size = batch_size
         self.epoch_disc = epoch_disc
-        self.gp_lambda = 10
+        self.gp_lambda = 1
 
     def update(self, writer):
         self.learning_steps += 1
@@ -95,10 +95,6 @@ class WGAIL_gp(PPO):
     def calc_gradient_penalty(self, states, states_exp, actions):
         alpha = torch.rand(self.batch_size, 1, device=self.device)
         interpolates = alpha * states + ((1 - alpha) * states_exp)
-        print('b_size: ', alpha[:2])
-        print('states: ', states[:2])
-        print('states_exp: ', states_exp[:2])
-        print('interpolates: ', interpolates[:2])
         interpolates = autograd.Variable(interpolates.detach().clone(), requires_grad=True)
 
         disc_interpolates = self.disc(interpolates, actions)
