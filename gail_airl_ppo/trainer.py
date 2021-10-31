@@ -5,7 +5,7 @@ from time import time, sleep
 from datetime import timedelta
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm, trange
-from network.utils import from_numpy, to_numpy
+from gail_airl_ppo.network.utils import from_numpy, to_numpy
 
 
 class Trainer:
