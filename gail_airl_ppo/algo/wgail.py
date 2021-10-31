@@ -87,3 +87,4 @@ class WGAIL(PPO):
                 acc_exp = (logits_exp > 0).float().mean().item()
             writer.add_scalar('stats/acc_pi', acc_pi, self.learning_steps)
             writer.add_scalar('stats/acc_exp', acc_exp, self.learning_steps)
+
