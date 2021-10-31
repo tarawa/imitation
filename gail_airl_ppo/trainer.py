@@ -5,6 +5,7 @@ from time import time, sleep
 from datetime import timedelta
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm, trange
+from network.utils import from_numpy, to_numpy
 
 
 class Trainer:
@@ -78,8 +79,8 @@ class Trainer:
                 if self.infer_reward:
                     print('state: ', state.shape)
                     print('action: ', action.shape)
-                    reward_hat = self.algo.disc.calculate_reward(torch.from_numpy(state).unsqueeze(0).to(self.device),
-                                                                 torch.from_numpy(action).unsqueeze(0).to(self.device))
+                    reward_hat = self.algo.disc.calculate_reward(from_numpy(state, self.device).unsqueeze(0),
+                                                                 from_numpy(action, self.device).unsqueeze(0),)
                     reward_pred[count] = reward_hat
                     self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_pred', reward_hat, count)
 
