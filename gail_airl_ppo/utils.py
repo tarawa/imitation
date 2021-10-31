@@ -66,11 +66,3 @@ def collect_demo(env, algo, buffer_size, device, std, p_rand, seed=0):
 
     print(f'Mean return of the expert is {total_return / num_episodes}')
     return buffer
-
-
-def from_numpy(x, device):
-    return torch.from_numpy(x).float().to(device)
-
-
-def to_numpy(x):
-    return x.to('cpu').detach().numpy()
