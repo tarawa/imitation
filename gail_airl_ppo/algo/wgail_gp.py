@@ -95,9 +95,9 @@ class WGAIL_gp(PPO):
     def calc_gradient_penalty(self, states, states_exp, actions):
         alpha = torch.rand(self.batch_size, 1, device=self.device)
         interpolates = alpha * states + ((1 - alpha) * states_exp)
-        print('b_size: ', self.batch_size)
-        print('states: ', states.shape)
-        print('interpolates: ', interpolates.shape)
+        print('b_size: ', alpha[:2])
+        print('states: ', states[:2])
+        print('interpolates: ', interpolates[:2])
         interpolates = autograd.Variable(interpolates.detach().clone(), requires_grad=True)
 
         disc_interpolates = self.disc(interpolates, actions)
