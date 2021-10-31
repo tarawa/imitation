@@ -8,13 +8,14 @@ from tqdm import tqdm, trange
 
 class Trainer:
 
-    def __init__(self, env, env_test, algo, log_dir, seed=0, num_steps=10**5,
+    def __init__(self, env, env_test, algo, log_dir, device, seed=0, num_steps=10**5,
                  eval_interval=10**3, num_eval_episodes=5, infer_reward=False):
         super().__init__()
 
         # Env to collect samples.
         self.env = env
         self.env.seed(seed)
+        self.device = device
 
         # Env for evaluation.
         self.env_test = env_test
@@ -74,7 +75,10 @@ class Trainer:
             while not done:
                 action = self.algo.exploit(state)
                 if self.infer_reward:
-                    reward_hat = self.algo.disc.calculate_reward(state, action)
+                    print('state: ', state.shape)
+                    print('action: ', action.shape)
+                    reward_hat = self.algo.disc.calculate_reward(torch.from_numpy(state).unsqueeze(0).to(self.device),
+                                                                 torch.from_numpy(action).unsqueeze(0).to(self.device))
                     reward_pred[count] = reward_hat
                     self.writer.add_scalar(f'return/test/step_{step}/episode_{i}/reward_pred', reward_hat, count)
 

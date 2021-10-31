@@ -11,11 +11,12 @@ from gail_airl_ppo.trainer import Trainer
 def run(args):
     env = make_env(args.env_id)
     env_test = make_env(args.env_id)
+    device = torch.device("cuda" if args.cuda else "cpu")
 
     algo = SAC(
         state_shape=env.observation_space.shape,
         action_shape=env.action_space.shape,
-        device=torch.device("cuda" if args.cuda else "cpu"),
+        device=device,
         seed=args.seed
     )
 
@@ -30,7 +31,8 @@ def run(args):
         log_dir=log_dir,
         num_steps=args.num_steps,
         eval_interval=args.eval_interval,
-        seed=args.seed
+        seed=args.seed,
+        device=device
     )
     trainer.train()
 

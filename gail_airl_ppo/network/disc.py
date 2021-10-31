@@ -23,6 +23,7 @@ class GAILDiscrim(nn.Module):
 
     def calculate_reward(self, states, actions):
         # PPO(GAIL) is to maximize E_{\pi} [-log(1 - D)].
+        print('calc_reward states: ', states.shape)
         with torch.no_grad():
             return -F.logsigmoid(-self.forward(states, actions))
 
