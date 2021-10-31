@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import torch
 from time import time, sleep
 from datetime import timedelta
 from torch.utils.tensorboard import SummaryWriter
