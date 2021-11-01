@@ -108,7 +108,7 @@ class WGAIL_gp(PPO):
         return gradient_penalty
 
 python train_imitation.py \
-    --algo wgail --cuda --env_id Hopper-v3 \
+    --algo wgail_notanh --cuda --env_id Hopper-v3 \
     --buffer buffers/Hopper-v3/size1000000_std0.01_prand0.0.pth \
     --num_steps 10000000 --eval_interval 5000 --rollout_length 2000 --seed 0
 
