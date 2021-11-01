@@ -75,6 +75,8 @@ class WGAIL_notanh(PPO):
         self.optim_disc.zero_grad()
         loss_disc.backward()
         self.optim_disc.step()
+        for p in self.disc.parameters():
+            p.data.clamp_(-0.01, 0.01)
 
         if self.learning_steps_disc % self.epoch_disc == 0:
             writer.add_scalar(
