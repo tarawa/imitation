@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.optim import RMSprop
 
 from .ppo import PPO
-from gail_airl_ppo.network import WGAILDiscrim
+from gail_airl_ppo.network import WGAILDiscrim_notanh
 
 
 class WGAIL_notanh(PPO):
@@ -25,7 +25,7 @@ class WGAIL_notanh(PPO):
         self.buffer_exp = buffer_exp
 
         # Discriminator.
-        self.disc = WGAILDiscrim(
+        self.disc = WGAILDiscrim_notanh(
             state_shape=state_shape,
             action_shape=action_shape,
             hidden_units=units_disc,
