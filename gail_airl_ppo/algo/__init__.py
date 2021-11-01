@@ -10,6 +10,7 @@ ALGOS = {
     'gail': GAIL,
     'airl': AIRL,
     'wgail': WGAIL,
+    'wgail_notanh': WGAIL_notanh,
     'wgail_gp': WGAIL_gp,
     'bc': BC
 }
