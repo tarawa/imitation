@@ -106,3 +106,14 @@ class WGAIL_notanh(PPO):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * self.gp_lambda
         return gradient_penalty
 
+'''
+python collect_demo.py \
+    --cuda --env_id Hopper-v3 \
+    --weight weights/Hopper-v3.pth \
+    --buffer_size 550000 --std 0.01 --p_rand 0.0 --seed 0
+
+python train_imitation.py \
+    --algo gail --cuda --env_id Hopper-v3 \
+    --buffer buffers/Hopper-v3/size550000_std0.01_prand0.0.pth \
+    --num_steps 200000 --eval_interval 5000 --rollout_length 2000 --seed 0
+'''

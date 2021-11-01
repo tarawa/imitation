@@ -39,7 +39,7 @@ def run(args):
         num_steps=args.num_steps,
         eval_interval=args.eval_interval,
         seed=args.seed,
-        infer_reward=True,
+        infer_reward=True if args.algo != 'bc' else False,
         device=device
     )
     trainer.train()
