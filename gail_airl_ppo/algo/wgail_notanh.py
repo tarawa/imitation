@@ -37,6 +37,7 @@ class WGAIL_notanh(PPO):
         self.optim_disc = RMSprop(self.disc.parameters(), lr=lr_disc)
         self.batch_size = batch_size
         self.epoch_disc = epoch_disc
+        self.gp_lambda = 0.1
 
     def update(self, writer):
         self.learning_steps += 1
@@ -70,13 +71,14 @@ class WGAIL_notanh(PPO):
         # Discriminator is to maximize -E_{\pi} [D] + E_{exp} [D].
         loss_pi = logits_pi.mean()
         loss_exp = -logits_exp.mean()
-        loss_disc = loss_pi + loss_exp
+
+        gp = self.calc_gradient_penalty(states, states_exp, actions)
+        loss_disc = loss_pi + loss_exp + gp
+        print(f'gp: {gp}, loss: {loss_disc}')
 
         self.optim_disc.zero_grad()
         loss_disc.backward()
         self.optim_disc.step()
-        for p in self.disc.parameters():
-            p.data.clamp_(-0.01, 0.01)
 
         if self.learning_steps_disc % self.epoch_disc == 0:
             writer.add_scalar(
@@ -88,4 +90,19 @@ class WGAIL_notanh(PPO):
                 acc_exp = (logits_exp > 0).float().mean().item()
             writer.add_scalar('stats/acc_pi', acc_pi, self.learning_steps)
             writer.add_scalar('stats/acc_exp', acc_exp, self.learning_steps)
+
+    def calc_gradient_penalty(self, states, states_exp, actions):
+        alpha = torch.rand(self.batch_size, 1, device=self.device)
+        interpolates = alpha * states + ((1 - alpha) * states_exp)
+        interpolates = autograd.Variable(interpolates.detach().clone(), requires_grad=True)
+
+        disc_interpolates = self.disc(interpolates, actions)
+
+        gradients = autograd.grad(outputs=disc_interpolates, inputs=interpolates,
+                                  grad_outputs=torch.ones(disc_interpolates.size(), device=self.device),
+                                  create_graph=True, retain_graph=True, only_inputs=True)[0]
+        gradients = gradients.view(gradients.size(0), -1)
+
+        gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * self.gp_lambda
+        return gradient_penalty
 
