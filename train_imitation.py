@@ -42,6 +42,22 @@ def run(args):
         infer_reward=True,
         device=device
     )
+
+    if args.initialize_bc_steps > 0:
+        trainer_bc = Trainer(
+            env=env,
+            env_test=env_test,
+            algo='bc',
+            log_dir=log_dir,
+            num_steps=args.initialize_bc_steps,
+            eval_interval=args.eval_interval,
+            seed=args.seed,
+            infer_reward=True,
+            device=device
+        )
+        trainer_bc.train()
+        trainer.algo.ppo.actor = trainer_bc.algo.ppo.actor
+
     trainer.train()
 
 
@@ -55,5 +71,6 @@ if __name__ == '__main__':
     p.add_argument('--algo', type=str, default='gail')
     p.add_argument('--cuda', action='store_true')
     p.add_argument('--seed', type=int, default=0)
+    p.add_argument('--initialize_bc_steps', type=int, default=0)
     args = p.parse_args()
     run(args)
