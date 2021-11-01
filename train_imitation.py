@@ -63,7 +63,7 @@ def run(args):
             device=device
         )
         trainer_bc.train()
-        trainer.algo.ppo.actor = trainer_bc.algo.actor
+        trainer.algo.actor = trainer_bc.algo.actor
 
     trainer.train()
 
