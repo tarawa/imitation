@@ -44,10 +44,18 @@ def run(args):
     )
 
     if args.initialize_bc_steps > 0:
+        bc_algo = ALGOS['bc'](
+            buffer_exp=buffer_exp,
+            state_shape=env.observation_space.shape,
+            action_shape=env.action_space.shape,
+            device=device,
+            seed=args.seed,
+            rollout_length=args.rollout_length
+        )
         trainer_bc = Trainer(
             env=env,
             env_test=env_test,
-            algo='bc',
+            algo=bc_algo,
             log_dir=log_dir,
             num_steps=args.initialize_bc_steps,
             eval_interval=args.eval_interval,
