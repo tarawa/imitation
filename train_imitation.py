@@ -60,7 +60,6 @@ def run(args):
             num_steps=args.initialize_bc_steps,
             eval_interval=args.eval_interval,
             seed=args.seed,
-            infer_reward=True,
             device=device
         )
         trainer_bc.train()
