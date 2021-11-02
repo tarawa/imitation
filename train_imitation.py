@@ -29,7 +29,7 @@ def run(args):
 
     time = datetime.now().strftime("%Y%m%d-%H%M")
     log_dir = os.path.join(
-        'logs', args.env_id, args.algo, f'seed{args.seed}-{time}')
+        'logs', args.env_id, args.algo, args.num_steps, f'seed{args.seed}-{time}')
 
     trainer = Trainer(
         env=env,
