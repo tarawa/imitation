@@ -7,7 +7,7 @@ from .ppo import PPO
 from gail_airl_ppo.network import WGAILDiscrim_notanh
 
 
-class WGAIL_notanh(PPO):
+class WGAIL_notanh_actions(PPO):
 
     def __init__(self, buffer_exp, state_shape, action_shape, device, seed,
                  gamma=0.995, rollout_length=50000, mix_buffer=1,
