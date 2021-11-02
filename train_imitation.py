@@ -73,6 +73,7 @@ if __name__ == '__main__':
     p.add_argument('--buffer', type=str, required=True)
     p.add_argument('--rollout_length', type=int, default=50000)
     p.add_argument('--num_steps', type=int, default=10**7)
+    p.add_argument('--buffer_size', type=int, default=10**6)
     p.add_argument('--eval_interval', type=int, default=10**5)
     p.add_argument('--env_id', type=str, default='Hopper-v3')
     p.add_argument('--algo', type=str, default='gail')
