@@ -108,13 +108,13 @@ class WGAIL_notanh_actions(PPO):
 
 '''
 python collect_demo.py \
-    --cuda --env_id Reacher-v2 \
-    --weight weights/Reacher-v2.pth \
-    --buffer_size 200000 --std 0.01 --p_rand 0.0 --seed 0
+    --cuda --env_id InvertedPendulum-v2 \
+    --weight weights/InvertedPendulum-v2.pth \
+    --buffer_size 50000 --std 0.01 --p_rand 0.0 --seed 0
 
 python train_imitation.py \
-    --algo wgail_notanh --cuda --env_id InvertedPendulum-v2 \
-    --buffer buffers/InvertedPendulum-v2/size1000000_std0.01_prand0.0.pth \
+    --algo gail --cuda --env_id InvertedPendulum-v2 \
+    --buffer buffers/InvertedPendulum-v2/size50000_std0.01_prand0.0.pth \
     --num_steps 100000 --eval_interval 5000 --rollout_length 2000 --seed 0
 
 '''
