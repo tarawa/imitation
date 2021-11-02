@@ -24,7 +24,6 @@ class BC(PPO):
         # Expert's buffer.
         self.buffer_exp = buffer_exp
 
-
         self.learning_steps_disc = 0
         self.optim_bc = Adam(self.actor.parameters(), lr=lr_disc)
         self.loss_bc = nn.MSELoss()

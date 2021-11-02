@@ -72,7 +72,7 @@ class WGAIL_notanh(PPO):
         loss_pi = logits_pi.mean()
         loss_exp = -logits_exp.mean()
 
-        gp = self.calc_gradient_penalty(states, states_exp, actions)
+        gp = self.calc_gradient_penalty(states, actions_exp, actions)
         loss_disc = loss_pi + loss_exp + gp
         print(f'gp: {gp}, loss: {loss_disc}')
 
@@ -91,12 +91,12 @@ class WGAIL_notanh(PPO):
             writer.add_scalar('stats/acc_pi', acc_pi, self.learning_steps)
             writer.add_scalar('stats/acc_exp', acc_exp, self.learning_steps)
 
-    def calc_gradient_penalty(self, states, states_exp, actions):
+    def calc_gradient_penalty(self, states, actions_exp, actions):
         alpha = torch.rand(self.batch_size, 1, device=self.device)
-        interpolates = alpha * states + ((1 - alpha) * states_exp)
+        interpolates = alpha * actions + ((1 - alpha) * actions_exp)
         interpolates = autograd.Variable(interpolates.detach().clone(), requires_grad=True)
 
-        disc_interpolates = self.disc(interpolates, actions)
+        disc_interpolates = self.disc(states, interpolates)
 
         gradients = autograd.grad(outputs=disc_interpolates, inputs=interpolates,
                                   grad_outputs=torch.ones(disc_interpolates.size(), device=self.device),
