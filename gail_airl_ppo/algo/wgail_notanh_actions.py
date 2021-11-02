@@ -112,9 +112,6 @@ python collect_demo.py \
     --weight weights/InvertedPendulum-v2.pth \
     --buffer_size 5000 --std 0.01 --p_rand 0.0 --seed 0
 
-python train_imitation.py --eval_interval 5000 --rollout_length 2000 --seed 0 \
-    --algo bc --cuda --env_id InvertedPendulum-v2 \
-    --buffer buffers/InvertedPendulum-v2/size5000_std0.01_prand0.0.pth \
-    --num_steps 100000 --buffer_size 5000
+CUDA_VISIBLE_DEVICES=1 python train_imitation.py --eval_interval 5000 --rollout_length 2000 --seed 0     --algo bc --cuda --env_id Hopper-v3     --buffer buffers/Hopper-v3/size1000000_std0.01_prand0.0.pth     --num_steps 100000 --buffer_size 1000000
 
 '''
