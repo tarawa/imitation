@@ -46,8 +46,7 @@ class BC(PPO):
         # Output of discriminator is (-inf, inf), not [0, 1].
         self.optim_bc.zero_grad()
         actions, logpi = self.actor.sample(states_exp)
-        print('actions: ', actions)
-        print('logpi: ', logpi)
+        print('actions: ', actions_exp)
         loss = self.loss_bc(actions, actions_exp)
         loss.backward()
         self.optim_bc.step()
