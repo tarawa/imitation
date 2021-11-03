@@ -58,12 +58,13 @@ def run(args):
             algo=bc_algo,
             log_dir=log_dir,
             num_steps=args.initialize_bc_steps,
-            eval_interval=args.eval_interval,
+            eval_interval=args.initialize_bc_steps * 2,
             seed=args.seed,
             device=device
         )
         trainer_bc.train()
         trainer.algo.actor = trainer_bc.algo.actor
+        trainer.algo.optim_actor = trainer_bc.algo.optim_actor
 
     trainer.train()
 
